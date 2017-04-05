@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical"
+    tools:context="amb.fuldapp.LoginActivity"
+    android:weightSum="1">
+
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.00"
+        android:paddingTop="15dp">
+
+        <!-- <EditText
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"gfhdhgh
+           android:hint="@string/fd_nummer"
+           android:inputType="textPassword" /> --> <!--TODO: Dieser Bereich sollte normalerweise nicht auskommentiert sein-->
+
+        <AutoCompleteTextView
+            android:id="@+id/fdnummer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:layout_margin="15dp"
+            android:hint="@string/fd_nummer"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingTop="5dp" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:hint="@string/prompt_password"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+        </android.support.design.widget.TextInputLayout>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:background="#66CC33"
+        android:text="@string/einloggbutton" />
+
+    <ImageView
+        android:id="@+id/imageView6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.00"
+        app:srcCompat="@drawable/fuldajpeg" />
+
+</LinearLayout>
