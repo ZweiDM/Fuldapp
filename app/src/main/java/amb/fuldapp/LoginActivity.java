@@ -35,7 +35,7 @@ import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 public class LoginActivity extends Activity {
 
 
-    
+
     ProgressDialog progressDialog;
 
     public static final String MyPREFERENCES = "MyPrefs" ;
@@ -127,8 +127,10 @@ public class LoginActivity extends Activity {
 
                 Pattern p = Pattern.compile("(?<=asi=).*");
                 Matcher m = p.matcher(asi_href);
-                if(m.find())
+                if(m.find()){
                     asi = m.group(0);
+                }
+
 
 
                 //Shared Preferences für Session Management ASI-Code und Benutzerkennung
