@@ -35,7 +35,7 @@ import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 public class LoginActivity extends Activity {
 
 
-    String url = "https://qispos.hs-fulda.de/qisserver/rds?state=user&type=1&category=auth.login&startpage=portal.vm&breadCrumbSource=portal";
+    
     ProgressDialog progressDialog;
 
     public static final String MyPREFERENCES = "MyPrefs" ;
@@ -145,7 +145,7 @@ public class LoginActivity extends Activity {
 
             return null;
         }
-    
+
         //Setzt den greeting Text
         @Override
         protected void onPostExecute(Void aVoid) {
