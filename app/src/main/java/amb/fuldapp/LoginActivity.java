@@ -145,7 +145,7 @@ public class LoginActivity extends Activity {
 
             return null;
         }
-
+    
         //Setzt den greeting Text
         @Override
         protected void onPostExecute(Void aVoid) {
@@ -158,7 +158,7 @@ public class LoginActivity extends Activity {
 
 
 
-    
+
 
 
 }
