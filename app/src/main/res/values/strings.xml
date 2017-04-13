@@ -2,6 +2,6 @@
     <string name="app_name">Fuldapp</string>
     <string name="einloggbutton">Einloggen</string>
     <string name="fd_nummer">FD-Nummer</string>
-    <string name="prompt_password">Passwort</string>
-    <string name="action_sign_in_short">Passworti</string>
+    <string name="password">Passwort</string>
+
 </resources>
