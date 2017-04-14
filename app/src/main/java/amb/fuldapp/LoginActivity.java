@@ -3,6 +3,7 @@ package amb.fuldapp;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,6 +31,7 @@ import java.util.regex.Pattern;
 
 import amb.fuldapp.R;
 
+import static android.R.attr.value;
 import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 public class LoginActivity extends Activity {
@@ -76,12 +78,12 @@ public class LoginActivity extends Activity {
 
     }
 
-    private class Qispos_Login extends AsyncTask<String, Void, Void> {
+    private class Qispos_Login extends AsyncTask<String, String, Void> {
 
         String title,asi_href;
         String login_url = "https://qispos.hs-fulda.de/qisserver/rds?state=user&type=1&category=auth.login&startpage=portal.vm&breadCrumbSource=portal";
         String referer = "https://qispos.hs-fulda.de/qisserver/rds?state=user&type=0";
-
+        Boolean result = false;
 
         //Loading Dialog während im Hintergrund die Connection ausgeführt wird
         @Override
@@ -109,6 +111,7 @@ public class LoginActivity extends Activity {
                 //TODO Bei erfolgreicher Anmeldung zur nächsten Activity wechseln
                 //TODO Cookiemanagement zur Erhaltung der Session hinzufügen (JSESSIONID)
 
+
                 //DOM-Objekt erzeugen nach Anfrage in Qispos mit Credentials
                 Document docs = Jsoup.connect(login_url)
                         .data("asdf", username,"fdsa",password,"submit", "Anmelden")
@@ -117,29 +120,43 @@ public class LoginActivity extends Activity {
                         .post();
 
 
-                Element f = docs.select("div[class=divloginstatus]").first();
-                title = f.text();
 
-                //QISPOS DOM-Traversing und Regex-Extrahierung für asi-code
-                //TODO Regex für ASI noch weiter spezifiern um mögliche Fehler zu verhindern
-                Element e = docs.select("a[class=auflistung]").get(3);
-                asi_href = e.attr("href");
+                Element loginCheck = docs.select("font[color=#BF0000]").first();
 
-                Pattern p = Pattern.compile("(?<=asi=).*");
-                Matcher m = p.matcher(asi_href);
-                if(m.find()){
-                    asi = m.group(0);
+                if (loginCheck != null){
+
+                    title = loginCheck.text();
+                    result = false;
+
+                }else{
+                    Element f = docs.select("div[class=divloginstatus]").first();
+                    title = f.text();
+
+                    //QISPOS DOM-Traversing und Regex-Extrahierung für asi-code
+                    //TODO Regex für ASI noch weiter spezifiern um mögliche Fehler zu verhindern
+                    Element e = docs.select("a[class=auflistung]").get(3);
+                    asi_href = e.attr("href");
+
+                    Pattern p = Pattern.compile("(?<=asi=).*");
+                    Matcher m = p.matcher(asi_href);
+                    if(m.find()){
+                        asi = m.group(0);
+                    }
+
+
+
+                    //Shared Preferences für Session Management ASI-Code und Benutzerkennung
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+
+                    editor.putString("asi", asi);
+                    editor.putString("username", username);
+                    editor.putString("password", password);
+                    editor.commit();
+
+                    result = true;
                 }
 
 
-
-                //Shared Preferences für Session Management ASI-Code und Benutzerkennung
-                SharedPreferences.Editor editor = sharedpreferences.edit();
-
-                editor.putString("asi", asi);
-                editor.putString("username", username);
-                editor.putString("password", password);
-                editor.commit();
 
             }catch(IOException e){
                 e.printStackTrace();
@@ -152,8 +169,19 @@ public class LoginActivity extends Activity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            TextView txtTitle = (TextView) findViewById(R.id.greeting_text);
-            txtTitle.setText(title);
+
+            if(result){
+
+                Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
+                //myIntent.putExtra("key", value); //Optional parameters
+                LoginActivity.this.startActivity(myIntent);
+
+            }else if(result != true){
+
+                TextView greetxt = (TextView) findViewById(R.id.greeting_text);
+                greetxt.setText(title);
+            }
+
             progressDialog.dismiss();
         }
     }
