@@ -25,6 +25,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
@@ -168,21 +169,41 @@ public class MainActivity extends AppCompatActivity
             String asi = params[0];
             String cook = params[1];
 
-            String req_url = "https://qispos.hs-fulda.de/qisserver/rds?state=notenspiegelStudent&next=list.vm&nextdir=qispos/notenspiegel/student&createInfos=Y&struct=auswahlBaum&nodeID=auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1%7Cstudiengang%3Astg%3DDM&expand=0&asi="+asi+"#auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1%7Cstudiengang%3Astg%3DDM";
+            String req_url = "https://qispos.hs-fulda.de/qisserver/rds?state=notenspiegelStudent&next=list.vm&nextdir=qispos/notenspiegel/student&createInfos=Y&struct=auswahlBaum&nodeID=auswahlBaum|abschluss:abschl=84,stgnr=1&expand=0&asi="+asi+"#auswahlBaum|abschluss:abschl=84,stgnr=1";
             String referer = "https://qispos.hs-fulda.de/qisserver/rds?state=notenspiegelStudent&next=tree.vm&nextdir=qispos/notenspiegel/student&navigationPosition=functions%2CnotenspiegelStudent&breadcrumb=notenspiegel&topitem=functions&subitem=notenspiegelStudent&asi="+asi;
 
+            String req_url2 = "https://qispos.hs-fulda.de/qisserver/rds;jsessionid="+cook+"?state=notenspiegelStudent&next=list.vm&nextdir=qispos/notenspiegel/student&createInfos=Y&struct=auswahlBaum&nodeID=auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1&expand=0&asi="+asi+"#auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1";
+            String ref2 = "Referer: https://qispos.hs-fulda.de/qisserver/rds;jsessionid="+cook+"?state=notenspiegelStudent&next=tree.vm&nextdir=qispos/notenspiegel/student&navigationPosition=functions%2CnotenspiegelStudent&breadcrumb=notenspiegel&topitem=functions&subitem=notenspiegelStudent&asi=7JlSg5xQXwHq1SScSbzL\n";
             try{
 
 
                 //DOM-Objekt erzeugen nach Anfrage der QISPOS Noten
                 Connection.Response res = Jsoup.connect(req_url)
+                        .referrer(referer)
                         .cookie("JSESSIONID",cook)
+                        .header("Host","qispos.hs-fulda.de")
+                        .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                        .header("Accept-Language","de,en-US;q=0.7,en;q=0.3")
+                        .header("Accept-Encoding","")
+                        .header("Connection","keep-alive")
+                        .header("Upgrade-Insecure-Requests", "1")
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
                         .method(Connection.Method.GET)
                         .execute();
 
                 Document docs = res.parse();
-                title = docs.select("div[class=content]").html()+" "+asi+" "+cook;
+
+                Element notentable = docs.select("table[border=0]").get(1);
+
+                Element noten_row = notentable.select("tr").get(11);
+
+                Elements td = noten_row.select("td");
+
+
+
+                title = td.text();
+
+
 
             }catch(IOException e){
                 e.printStackTrace();
