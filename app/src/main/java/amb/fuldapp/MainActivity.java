@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,6 +19,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +33,10 @@ import org.jsoup.select.Elements;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +46,10 @@ public class MainActivity extends AppCompatActivity
 
     String  asi,cookie;
     ProgressDialog progressDialog;
+    LinearLayout ll;
+    TextView edi;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +63,10 @@ public class MainActivity extends AppCompatActivity
         cookie = sharedPreferences.getString("cookie", "") ;
 
 
-        Toast.makeText(MainActivity.this, "Hallo",
-                Toast.LENGTH_LONG).show();
+        ll = (LinearLayout) findViewById(R.id.lli);
+        ll.setOrientation(LinearLayout.VERTICAL);
+
+
 
         //FLOATING BUTTON UNTEN RECHTS
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -65,15 +79,10 @@ public class MainActivity extends AppCompatActivity
         });
 
         //NOTEN REQUEST BUTTON
-        Button b = (Button) findViewById(R.id.button);
+        //Button b = (Button) findViewById(R.id.button);
+        Noten_Request req = new Noten_Request();
+        req.execute(asi,cookie);
 
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Noten_Request req = new Noten_Request();
-                req.execute(asi,cookie);
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -147,9 +156,11 @@ public class MainActivity extends AppCompatActivity
 
     private class Noten_Request extends AsyncTask<String, String, Void> {
 
-        String title;
-
+        String title = "";
+        int arraysize = 0;
         Boolean result = false;
+        Elements noten_row;
+        Document docs;
 
         //Loading Dialog während im Hintergrund die Connection ausgeführt wird
         @Override
@@ -195,25 +206,7 @@ public class MainActivity extends AppCompatActivity
 
                 Element notentable = docs.select("table[border=0]").get(1);
 
-                Elements noten_row = notentable.select("tr");
-
-
-
-                for(int i=3;i<noten_row.size()-1;i++){
-
-                    Element eintrag = noten_row.get(i);
-
-                    Elements spalten = eintrag.select("td");
-
-                    title += spalten.text()+"\n";
-
-
-                }
-
-
-
-
-
+                noten_row = notentable.select("tr");
 
             }catch(IOException e){
                 e.printStackTrace();
@@ -226,8 +219,24 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            TextView t = (TextView) findViewById(R.id.textView3);
-            t.setText(title);
+
+            for(int i=3;i<noten_row.size()-1;i++){
+
+                Element eintrag = noten_row.get(i);
+
+                Elements spalten = eintrag.select("td");
+
+                //title += spalten.text()+"\n";
+
+
+                edi = new TextView(MainActivity.this);
+                edi.setText(spalten.text());
+
+                edi.setTextSize(20);
+                ll.addView(edi);
+
+
+            }
             progressDialog.dismiss();
         }
     }
