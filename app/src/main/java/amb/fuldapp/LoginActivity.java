@@ -125,7 +125,8 @@ public class LoginActivity extends Activity {
                         .execute();
 
                 Document docs = res.parse();
-                String sessionId = res.cookie("JSESSIONID"); // you will need to check what the right cookie name is
+                String sessionId = res.cookie("JSESSIONID");
+
 
 
                 Element loginCheck = docs.select("font[color=#BF0000]").first();

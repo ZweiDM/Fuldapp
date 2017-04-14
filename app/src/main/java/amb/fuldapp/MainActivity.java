@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -167,24 +168,21 @@ public class MainActivity extends AppCompatActivity
             String asi = params[0];
             String cook = params[1];
 
-            String req_url = "https://qispos.hs-fulda.de/qisserver/rds?state=notenspiegelStudent&next=list.vm&nextdir=qispos/notenspiegel/student&createInfos=Y&struct=auswahlBaum&nodeID=auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1&expand=0&asi="+asi+"#auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1";
+            String req_url = "https://qispos.hs-fulda.de/qisserver/rds?state=notenspiegelStudent&next=list.vm&nextdir=qispos/notenspiegel/student&createInfos=Y&struct=auswahlBaum&nodeID=auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1%7Cstudiengang%3Astg%3DDM&expand=0&asi="+asi+"#auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1%7Cstudiengang%3Astg%3DDM";
             String referer = "https://qispos.hs-fulda.de/qisserver/rds?state=notenspiegelStudent&next=tree.vm&nextdir=qispos/notenspiegel/student&navigationPosition=functions%2CnotenspiegelStudent&breadcrumb=notenspiegel&topitem=functions&subitem=notenspiegelStudent&asi="+asi;
 
-            String req_url2 = "https://qispos.hs-fulda.de/qisserver/rds;jsessionid="+cook+"?state=notenspiegelStudent&next=list.vm&nextdir=qispos/notenspiegel/student&createInfos=Y&struct=auswahlBaum&nodeID=auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1&expand=0&asi="+asi+"#auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1";
-            String ref2 = "Referer: https://qispos.hs-fulda.de/qisserver/rds;jsessionid="+cook+"?state=notenspiegelStudent&next=tree.vm&nextdir=qispos/notenspiegel/student&navigationPosition=functions%2CnotenspiegelStudent&breadcrumb=notenspiegel&topitem=functions&subitem=notenspiegelStudent&asi=7JlSg5xQXwHq1SScSbzL\n";
             try{
 
 
                 //DOM-Objekt erzeugen nach Anfrage der QISPOS Noten
-                Document docs = Jsoup.connect(req_url2)
-                        .referrer(ref2)
+                Connection.Response res = Jsoup.connect(req_url)
                         .cookie("JSESSIONID",cook)
-                        
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-                        .get();
+                        .method(Connection.Method.GET)
+                        .execute();
 
-
-                title = docs.html();
+                Document docs = res.parse();
+                title = docs.select("div[class=content]").html()+" "+asi+" "+cook;
 
             }catch(IOException e){
                 e.printStackTrace();
