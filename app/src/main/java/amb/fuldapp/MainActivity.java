@@ -1,6 +1,11 @@
 package amb.fuldapp;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -12,9 +17,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.w3c.dom.Text;
+
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+
+    String  asi,cookie;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,12 +44,32 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        asi = sharedPreferences.getString("asi", "") ;
+        cookie = sharedPreferences.getString("cookie", "") ;
+
+
+        Toast.makeText(MainActivity.this, "Hallo",
+                Toast.LENGTH_LONG).show();
+
+        //FLOATING BUTTON UNTEN RECHTS
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Hallo", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+            }
+        });
+
+        //NOTEN REQUEST BUTTON
+        Button b = (Button) findViewById(R.id.button);
+
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Noten_Request req = new Noten_Request();
+                req.execute(asi,cookie);
             }
         });
 
@@ -40,6 +81,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
     }
 
     @Override
@@ -98,4 +141,66 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+    private class Noten_Request extends AsyncTask<String, String, Void> {
+
+        String title;
+
+        Boolean result = false;
+
+        //Loading Dialog während im Hintergrund die Connection ausgeführt wird
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.setTitle("Noten abrufen");
+            progressDialog.setMessage("Loading");
+            progressDialog.setIndeterminate(false);
+            progressDialog.show();
+        }
+
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            String asi = params[0];
+            String cook = params[1];
+
+            String req_url = "https://qispos.hs-fulda.de/qisserver/rds?state=notenspiegelStudent&next=list.vm&nextdir=qispos/notenspiegel/student&createInfos=Y&struct=auswahlBaum&nodeID=auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1&expand=0&asi="+asi+"#auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1";
+            String referer = "https://qispos.hs-fulda.de/qisserver/rds?state=notenspiegelStudent&next=tree.vm&nextdir=qispos/notenspiegel/student&navigationPosition=functions%2CnotenspiegelStudent&breadcrumb=notenspiegel&topitem=functions&subitem=notenspiegelStudent&asi="+asi;
+
+            String req_url2 = "https://qispos.hs-fulda.de/qisserver/rds;jsessionid="+cook+"?state=notenspiegelStudent&next=list.vm&nextdir=qispos/notenspiegel/student&createInfos=Y&struct=auswahlBaum&nodeID=auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1&expand=0&asi="+asi+"#auswahlBaum%7Cabschluss%3Aabschl%3D84%2Cstgnr%3D1";
+            String ref2 = "Referer: https://qispos.hs-fulda.de/qisserver/rds;jsessionid="+cook+"?state=notenspiegelStudent&next=tree.vm&nextdir=qispos/notenspiegel/student&navigationPosition=functions%2CnotenspiegelStudent&breadcrumb=notenspiegel&topitem=functions&subitem=notenspiegelStudent&asi=7JlSg5xQXwHq1SScSbzL\n";
+            try{
+
+
+                //DOM-Objekt erzeugen nach Anfrage der QISPOS Noten
+                Document docs = Jsoup.connect(req_url2)
+                        .referrer(ref2)
+                        .cookie("JSESSIONID",cook)
+                        
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
+                        .get();
+
+
+                title = docs.html();
+
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        //Setzt den Noten Text
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            TextView t = (TextView) findViewById(R.id.textView3);
+            t.setText(title);
+            progressDialog.dismiss();
+        }
+    }
+
 }

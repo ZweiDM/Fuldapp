@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -32,6 +33,7 @@ import java.util.regex.Pattern;
 import amb.fuldapp.R;
 
 import static android.R.attr.value;
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 public class LoginActivity extends Activity {
@@ -56,7 +58,7 @@ public class LoginActivity extends Activity {
         username = (EditText) findViewById(R.id.username_input);
         passwort = (EditText) findViewById(R.id.passwort_input);
 
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        sharedpreferences = getDefaultSharedPreferences(getApplicationContext());
 
 
         //Onclick-Listener für Login-Button
@@ -113,12 +115,17 @@ public class LoginActivity extends Activity {
 
 
                 //DOM-Objekt erzeugen nach Anfrage in Qispos mit Credentials
-                Document docs = Jsoup.connect(login_url)
+
+
+                Connection.Response res = Jsoup.connect(login_url)
                         .data("asdf", username,"fdsa",password,"submit", "Anmelden")
                         .referrer(referer)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-                        .post();
+                        .method(Connection.Method.POST)
+                        .execute();
 
+                Document docs = res.parse();
+                String sessionId = res.cookie("JSESSIONID"); // you will need to check what the right cookie name is
 
 
                 Element loginCheck = docs.select("font[color=#BF0000]").first();
@@ -151,6 +158,7 @@ public class LoginActivity extends Activity {
                     editor.putString("asi", asi);
                     editor.putString("username", username);
                     editor.putString("password", password);
+                    editor.putString("cookie", sessionId);
                     editor.commit();
 
                     result = true;
