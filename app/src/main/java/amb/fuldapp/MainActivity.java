@@ -195,13 +195,23 @@ public class MainActivity extends AppCompatActivity
 
                 Element notentable = docs.select("table[border=0]").get(1);
 
-                Element noten_row = notentable.select("tr").get(11);
-
-                Elements td = noten_row.select("td");
+                Elements noten_row = notentable.select("tr");
 
 
 
-                title = td.text();
+                for(int i=3;i<noten_row.size()-1;i++){
+
+                    Element eintrag = noten_row.get(i);
+
+                    Elements spalten = eintrag.select("td");
+
+                    title += spalten.text()+"\n";
+
+
+                }
+
+
+
 
 
 
