@@ -10,4 +10,12 @@
 
     <string name="action_settings">Settings</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="noten_label">Note</string>
+    <string name="fach_label">Fach</string>
+    <string name="d_label">Datum</string>
+    <string name="c_label">Credit</string>
+
 </resources>
